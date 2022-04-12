@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+	<head>
+		<title>マツキヨ包括的加盟店リスト</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+		<style>
+			img {
+				width: 14%;
+			}
+			table {
+				min-width: 1400px;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<table>
+				<thead>
+					<tr><th>店舗名</th><th>所在地</th><th>定休日</th><th>サービス</th><th>URL</th></tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</main>
+		<script>
+			axios('./list.html').then(response => {
+				document.querySelector("tbody").innerHTML = response.data
+			})
+		</script>
+	</body>
+</html>
