@@ -25,5 +25,5 @@ jobs:
           git add .
           git commit -m "update" -a
           git pull
-          git push origin master
+          git push origin main
 
