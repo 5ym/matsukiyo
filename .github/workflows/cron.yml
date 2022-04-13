@@ -18,8 +18,8 @@ jobs:
       - run: node cu.js
       - name: git setting
         run: |
-          git config --local user.email "info@daco.dev"
-          git config --local user.name "5ym"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "GitHub Action"
       - name: Commit files
         run: |
           git add .
