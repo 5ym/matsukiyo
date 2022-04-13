@@ -16,3 +16,14 @@ jobs:
           node-version: '16'
       - run: npm i
       - run: node cu.js
+      - name: git setting
+        run: |
+          git config --local user.email "info@daco.dev"
+          git config --local user.name "5ym"
+      - name: Commit files
+        run: |
+          git add .
+          git commit -m "update" -a
+          git pull
+          git push origin master
+
