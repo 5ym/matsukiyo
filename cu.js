@@ -23,7 +23,7 @@ Promise.all([
         body += "<tr><td>"+item.name+"</td><td>"+item.address+"</td><td>"+item.closed_day+"</td><td>"+services+"</td><td><a target='_blank' href='https://www.matsukiyo.co.jp/map?kid="+item.id+"'>https://www.matsukiyo.co.jp/map?kid="+item.id+"</a></td></tr>\n"
     })
     fs.writeFileSync('./list.html', body)
-    axios.post('https://api.daco.dev/w/?key=', {text: "マツキヨ包括加盟店リストを更新しました。\nhttps://api.daco.dev/m"}).then(function (response) {
-        console.log(response);
-    })
+//     axios.post('https://api.daco.dev/w/?key=', {text: "マツキヨ包括加盟店リストを更新しました。\nhttps://api.daco.dev/m"}).then(function (response) {
+//         console.log(response);
+//     })
 })
