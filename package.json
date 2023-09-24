@@ -1,9 +1,5 @@
 {
-    "name": "m",
-    "version": "1.0.0",
-    "main": "index.js",
-    "license": "MIT",
-    "dependencies": {
-        "axios": "^0.21.2"
-    }
+  "devDependencies": {
+    "@types/node": "^20.6.4"
+  }
 }

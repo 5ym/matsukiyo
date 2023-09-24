@@ -10,12 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     name: update
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      - run: npm i
-      - run: node cu.js
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun cu.ts
       - name: git setting
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
