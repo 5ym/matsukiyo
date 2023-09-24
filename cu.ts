@@ -1,4 +1,5 @@
-import * as fs from 'fs'
+import { writeFileSync } from "fs";
+
 const url = 'https://www.matsukiyo.co.jp/map/s3/json/'
 let list: any
 let attr: any
@@ -21,6 +22,5 @@ Promise.all([
         })
         body += "<tr><td>"+item.name+"</td><td>"+item.address+"</td><td>"+item.closed_day+"</td><td>"+services+"</td><td><a target='_blank' href='https://www.matsukiyo.co.jp/map?kid="+item.id+"'>https://www.matsukiyo.co.jp/map?kid="+item.id+"</a></td></tr>\n"
     })
-    console.log(body)
-    fs.writeFileSync('./list.html', body)
+    writeFileSync('./list.html', body)
 })
