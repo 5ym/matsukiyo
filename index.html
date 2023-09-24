@@ -4,21 +4,13 @@
 		<title>マツキヨ包括的加盟店リスト</title>
 		<meta name="viewport" content="width=device-width,initial-scale=1">
 		<meta charset="utf-8">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-		<style>
-			img {
-				width: 14%;
-			}
-			table {
-				min-width: 1400px;
-			}
-		</style>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 	</head>
 	<body>
-		<main>
-			<table>
+		<main class="container-fluid">
+			<h1>マツキヨ包括的加盟店リスト</h1>
+			<table class="table">
 				<thead>
 					<tr><th>店舗名</th><th>所在地</th><th>定休日</th><th>サービス</th><th>URL</th></tr>
 				</thead>
@@ -27,8 +19,8 @@
 			</table>
 		</main>
 		<script>
-			axios('./list.html').then(response => {
-				document.querySelector("tbody").innerHTML = response.data
+			fetch('./list.html', {mode: 'no-cors'}).then(data => data.text()).then(text => {
+				document.querySelector("tbody").innerHTML = text
 			})
 		</script>
 	</body>
