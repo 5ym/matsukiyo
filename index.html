@@ -10,13 +10,15 @@
 	<body>
 		<main class="container-fluid">
 			<h1>マツキヨ包括的加盟店リスト</h1>
-			<table class="table">
-				<thead>
-					<tr><th>店舗名</th><th>所在地</th><th>定休日</th><th>サービス</th><th>URL</th></tr>
-				</thead>
-				<tbody>
-				</tbody>
-			</table>
+			<div class="table-responsive">
+				<table class="table">
+					<thead>
+						<tr><th>店舗名</th><th>所在地</th><th>定休日</th><th>サービス</th><th>URL</th></tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
 		</main>
 		<script>
 			fetch('./list.html', {mode: 'no-cors'}).then(data => data.text()).then(text => {
