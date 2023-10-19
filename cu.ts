@@ -18,7 +18,7 @@ Promise.all([
     list.forEach((item: any) => {
         let services = ""
         item.services.split('').forEach((i, k) => {
-            if(i == 1 && attr.services[k][2]) services += `<div class="img-wrap"><img src="https://www.matsukiyo.co.jp/map/s3/icon/${attr.services[k][2]}"></div>`
+            if(i == 1 && attr.services[k][2]) services += `<div style="display:inline-block;"><img src="https://www.matsukiyo.co.jp/map/s3/icon/${attr.services[k][2]}"></div>`
         })
         body += `<tr><td>${item.name}</td><td>${item.address}</td><td>${item.closed_day}</td><td>${services}</td><td><a target="_blank" href="https://www.matsukiyo.co.jp/map?kid=${item.id}">https://www.matsukiyo.co.jp/map?kid=${item.id}</a></td></tr>`
     })
