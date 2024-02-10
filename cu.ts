@@ -1,6 +1,6 @@
 import { writeFileSync } from "fs";
 
-const url = 'https://www.matsukiyo.co.jp/map/s3/json/'
+const url = 'https://www.matsukiyococokara-online.com/map/s3/json/'
 let list: any
 let attr: any
 
