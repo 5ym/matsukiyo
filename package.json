@@ -1,5 +1,5 @@
 {
   "devDependencies": {
-    "@types/node": "^20.6.4"
+    "@types/node": "^26.0.0"
   }
 }
