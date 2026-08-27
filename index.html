@@ -1,29 +1,81 @@
 <!doctype html>
-<html>
-	<head>
-		<title>マツキヨ包括的加盟店リスト</title>
-		<meta name="viewport" content="width=device-width,initial-scale=1">
-		<meta charset="utf-8">
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-	</head>
-	<body>
-		<main class="container-fluid">
-			<h1>マツキヨ包括的加盟店リスト</h1>
-			<div class="table-responsive">
-				<table class="table" style="white-space:nowrap;">
-					<thead>
-						<tr><th>店舗名</th><th>所在地</th><th>定休日</th><th>サービス</th><th>URL</th></tr>
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
-			</div>
-		</main>
-		<script>
-			fetch('./list.html', {mode: 'no-cors'}).then(data => data.text()).then(text => {
-				document.querySelector("tbody").innerHTML = text
-			})
-		</script>
-	</body>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>マツキヨ包括加盟店マップ</title>
+    <meta
+      name="description"
+      content="マツキヨの包括加盟店を地図上に表示します。都道府県・サービスで絞り込めます。"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.0.0/dist/maplibre-gl.css" />
+    <link rel="modulepreload" href="https://unpkg.com/maplibre-gl@6.0.0/dist/maplibre-gl.mjs" />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <button id="panel-toggle" class="panel-toggle" type="button" aria-controls="panel">
+      <span aria-hidden="true">☰</span> 絞り込み
+    </button>
+
+    <aside id="panel" class="panel" aria-label="絞り込みと一覧">
+      <header class="panel__header">
+        <div>
+          <h1 class="panel__title">マツキヨ包括加盟店マップ</h1>
+          <p class="panel__meta" id="meta">読み込み中…</p>
+        </div>
+        <button id="panel-close" class="panel__close" type="button" aria-label="パネルを閉じる">
+          ×
+        </button>
+      </header>
+
+      <div class="panel__body" id="panel-body">
+        <section class="field">
+          <label class="field__label" for="search">店舗名・住所で検索</label>
+          <input id="search" type="search" placeholder="例: 新宿 薬局" autocomplete="off" />
+        </section>
+
+        <section class="field field--row">
+          <label class="field__inline">
+            <span class="field__label">都道府県</span>
+            <select id="pref"></select>
+          </label>
+        </section>
+
+        <section class="field">
+          <h2 class="field__label">
+            サービス
+            <button type="button" class="link-btn" id="service-reset">すべて</button>
+          </h2>
+          <div class="chips chips--scroll" id="services"></div>
+        </section>
+
+        <section class="field field--row">
+          <label class="field__inline field__inline--check">
+            <span class="field__label">表示範囲</span>
+            <label class="check">
+              <input type="checkbox" id="in-view" />
+              <span>地図に写っている店舗だけ一覧に出す</span>
+            </label>
+          </label>
+        </section>
+
+        <section class="field field--grow">
+          <h2 class="field__label">一覧 <span class="count" id="count"></span></h2>
+          <ol class="list" id="list"></ol>
+        </section>
+      </div>
+
+      <footer class="panel__footer">
+        店舗データ:
+        <a href="https://www.matsukiyococokara-online.com/map" target="_blank" rel="noopener">マツキヨココカラ 店舗検索</a>
+        ／ 掲載内容は公式サイトで確認してください
+      </footer>
+    </aside>
+
+    <div id="toast" class="toast" role="status" hidden></div>
+
+    <script type="module" src="./assets/main.js"></script>
+  </body>
 </html>

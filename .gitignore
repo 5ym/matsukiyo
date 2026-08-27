@@ -1,2 +1,4 @@
 /node_modules
-/list.html
+/data.json
+/map.json
+/geocode-cache.json

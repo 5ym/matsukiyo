@@ -23,13 +23,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
-      - run: bun cu.ts
+      - run: bun install --frozen-lockfile
+      - name: Fetch stores and build map.json
+        run: bun app.ts
+      - name: Assemble site
+        run: |
+          mkdir -p site
+          cp index.html map.json site/
+          cp -r assets site/assets
       - name: Setup Pages
         uses: actions/configure-pages@v6
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: '.'
+          path: site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
