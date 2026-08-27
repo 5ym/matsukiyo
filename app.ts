@@ -3,14 +3,49 @@
 const MAP_URL = "https://www.matsukiyococokara-online.com/map";
 const JSON_URL = `${MAP_URL}/s3/json/`;
 
-// サイト側の Bot 対策に弾かれないよう、実ブラウザに近いヘッダを付ける
+// サイト側の Bot 対策 (Akamai) に弾かれないよう、実ブラウザに近いヘッダを付ける
 const BROWSER_HEADERS = {
 	accept: "application/json, text/plain, */*",
 	"accept-language": "ja,en-US;q=0.9,en;q=0.8",
+	"accept-encoding": "gzip, deflate, br, zstd",
+	"cache-control": "no-cache",
+	pragma: "no-cache",
+	dnt: "1",
+	priority: "u=1, i",
 	referer: `${MAP_URL}/`,
+	origin: "https://www.matsukiyococokara-online.com",
+	"sec-ch-ua": '"Chromium";v="131", "Not_A Brand";v="24", "Google Chrome";v="131"',
+	"sec-ch-ua-mobile": "?0",
+	"sec-ch-ua-platform": '"Windows"',
+	"sec-fetch-dest": "empty",
+	"sec-fetch-mode": "cors",
+	"sec-fetch-site": "same-origin",
 	"user-agent":
 		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
 };
+
+/**
+ * Akamai 等の Bot 対策は IP のレピュテーション（クラウド/データセンター系を弾く）でも
+ * 判定するため、ヘッダだけでは通らないことがある。その場合は住宅回線などの
+ * プロキシ経由にする（.env / CI Secrets の HTTPS_PROXY、未設定なら直接アクセス）。
+ */
+const PROXY = Bun.env.HTTPS_PROXY || Bun.env.https_proxy || undefined;
+
+async function fetchWithRetry(url: string, attempts = 3): Promise<Response> {
+	let lastError: unknown;
+	for (let i = 1; i <= attempts; i++) {
+		try {
+			const res = await fetch(url, { headers: BROWSER_HEADERS, proxy: PROXY });
+			if (res.ok) return res;
+			// 403 はレートリミットや一時的なブロックのこともあるので、間隔を空けて再試行する
+			lastError = new Error(`HTTP ${res.status}`);
+		} catch (error) {
+			lastError = error;
+		}
+		if (i < attempts) await new Promise((r) => setTimeout(r, 1500 * i));
+	}
+	throw lastError instanceof Error ? lastError : new Error(String(lastError));
+}
 
 type RawStore = {
 	id: number | string;
@@ -18,11 +53,15 @@ type RawStore = {
 	address: string;
 	closed_day?: string;
 	services: string;
+	icon: number;
+	latitude?: number | string;
+	longitude?: number | string;
 	[key: string]: unknown;
 };
 
 type RawAttr = {
 	services: unknown[];
+	icon: unknown[];
 };
 
 type RawData = {
@@ -34,19 +73,52 @@ type RawData = {
 // 1. API から取得して data.json に保存
 // -----------------------------
 
-/** 包括加盟店だけを対象にする（元の cu.ts から踏襲したフィルタ） */
+/**
+ * 元の cu.ts は services のビット列を正規表現で判定していたが、現在の stores.json は
+ * services が短くなっていて（例: "1101001100"）そのパターンには二度と一致しない
+ * （データ形式が変わって壊れていた）。
+ *
+ * 店舗は icon（ブランドID）で分類できる。マツモトキヨシ HD / ココカラファイン HD が
+ * 直営するブランドを除いた残りが、地域の独立系ドラッグストアと包括業務提携している
+ * 「包括加盟店」に相当する。
+ *   直営: マツモトキヨシ/matsukiyoLAB/petit madoca (旧マツモトキヨシ HD)、
+ *         ココカラファイン/セイジョー/ドラッグセガミ/ジップドラッグ/ライフォート/
+ *         ココカラファインイズミヤ (旧ココカラファイン HD の完全子会社)
+ * ブランドの判定基準が変わっている可能性があるので、実際の内訳
+ * （storeAttributes.json の icon 名と件数）を見て必要なら調整すること。
+ */
+const DIRECTLY_OPERATED_BRAND_IDS = new Set([
+	1, // マツモトキヨシ
+	3, // matsukiyoLAB
+	9, // petit madoca
+	30, // ココカラファイン
+	31, // セイジョー
+	32, // ドラッグセガミ
+	33, // ジップドラッグ
+	34, // ライフォート
+	36, // ココカラファインイズミヤ
+]);
+
 function isFranchise(item: RawStore): boolean {
-	return /\d{8}0\d{2}/.test(item.services);
+	return !DIRECTLY_OPERATED_BRAND_IDS.has(item.icon);
 }
 
 async function fetchAll(): Promise<RawData> {
-	const [storesRes, attrRes] = await Promise.all([
-		fetch(`${JSON_URL}stores.json`, { headers: BROWSER_HEADERS }),
-		fetch(`${JSON_URL}storeAttributes.json`, { headers: BROWSER_HEADERS }),
-	]);
-
-	if (!storesRes.ok) throw new Error(`stores.json 取得失敗: HTTP ${storesRes.status}`);
-	if (!attrRes.ok) throw new Error(`storeAttributes.json 取得失敗: HTTP ${attrRes.status}`);
+	let storesRes: Response;
+	let attrRes: Response;
+	try {
+		[storesRes, attrRes] = await Promise.all([
+			fetchWithRetry(`${JSON_URL}stores.json`),
+			fetchWithRetry(`${JSON_URL}storeAttributes.json`),
+		]);
+	} catch (error) {
+		const hint = PROXY
+			? ""
+			: "\nAkamai にブロックされている場合、データセンター系 IP からのアクセスが弾かれている可能性があります。" +
+				"住宅回線などのプロキシを HTTPS_PROXY（.env またはリポジトリの Secrets）に設定するか、" +
+				"自宅サーバ等をセルフホストランナーにして実行してください。";
+		throw new Error(`stores.json / storeAttributes.json 取得失敗: ${(error as Error).message}${hint}`);
+	}
 
 	const allStores = (await storesRes.json()) as RawStore[];
 	const attr = (await attrRes.json()) as RawAttr;

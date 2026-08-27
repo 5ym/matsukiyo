@@ -25,6 +25,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - name: Fetch stores and build map.json
+        env:
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
         run: bun app.ts
       - name: Assemble site
         run: |

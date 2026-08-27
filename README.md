@@ -39,9 +39,34 @@ bun run dev     # http://localhost:5173/ で地図を確認
 
 ## 座標について
 
-公式サイトの店舗 JSON がそのまま座標を持っていればそれを使う。
-持っていない場合は、住所を [国土地理院の住所検索 API](https://msearch.gsi.go.jp/address-search/AddressSearch)
+公式サイトの店舗 JSON が `latitude` / `longitude` を持っているのでそれをそのまま使う。
+万一持たない店舗があれば、住所を [国土地理院の住所検索 API](https://msearch.gsi.go.jp/address-search/AddressSearch)
 でジオコーディングして補う（無料・キー不要）。結果は `geocode-cache.json` にキャッシュする。
+
+## 包括加盟店の判定について
+
+店舗 JSON に「包括加盟店かどうか」という直接のフラグは無い。`icon`（ブランドID）を見て、
+マツモトキヨシ HD / ココカラファイン HD が直営するブランド（マツモトキヨシ・matsukiyoLAB・
+petit madoca・ココカラファイン・セイジョー・ドラッグセガミ・ジップドラッグ・ライフォート・
+ココカラファインイズミヤ）を除いた残りを包括加盟店とみなしている（`app.ts` の
+`DIRECTLY_OPERATED_BRAND_IDS`）。これは店舗数の内訳から妥当と判断した推測なので、
+ブランドの扱いに心当たりがあれば `DIRECTLY_OPERATED_BRAND_IDS` を調整すること。
+
+## サイトのアクセス制限 (Akamai) について
+
+公式サイトは Bot 対策 (Akamai) で守られており、ヘッダの少ないリクエストは 403 で弾かれる。
+`app.ts` は実ブラウザに近いヘッダを付け、失敗時は間隔を空けて自動リトライする。
+
+それでも 403 が続く場合、クラウド/データセンター系の IP をレピュテーションで弾いている
+可能性が高い（GitHub-hosted runner を含む）。その場合は住宅回線などのプロキシを
+`HTTPS_PROXY` に設定する。
+
+| 変数 | 意味 |
+| --- | --- |
+| `HTTPS_PROXY` | 403 が続く場合に使うプロキシ（任意）。ローカルは `.env`、CI はリポジトリの Secrets |
+
+プロキシも用意できない場合は、`cron.yml` の `runs-on` を自宅サーバ等のセルフホストランナーに
+向けるのが確実。
 
 ## GitHub Pages への公開
 
