@@ -24,10 +24,12 @@ jobs:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
+      # Akamai にブロックされて失敗することがある。その場合はリポジトリに
+      # コミット済みの map.json（手元で取得した最新データ）をそのままデプロイする
       - name: Fetch stores and build map.json
         env:
           HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
-        run: bun app.ts
+        run: bun app.ts || echo "::warning::取得に失敗したため、コミット済みの map.json をそのまま使います"
       - name: Assemble site
         run: |
           mkdir -p site
